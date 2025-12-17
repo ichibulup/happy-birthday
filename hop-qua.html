@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.sound.min.js"></script>
+    <title>Happy Birthday! 🎂✨</title>
+    <style>
+      /* Canvas overlay */
+      #p5-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      #p5-container canvas {
+        background: transparent !important;
+      }
+
+      /* Gift page specific styles */
+      .gift-page {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Modal Dialog Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        animation: overlayFadeIn 0.3s ease-out;
+      }
+
+      @keyframes overlayFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-dialog {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        border-radius: 20px;
+        padding: 40px 30px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9) translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .modal-header {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .modal-title {
+        font-size: 2rem;
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        letter-spacing: 2px;
+        margin: 0;
+      }
+
+      .modal-content {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .modal-message {
+        font-size: 1.05rem;
+        color: white;
+        line-height: 1.8;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        margin: 0;
+      }
+
+      .modal-footer {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .modal-button {
+        padding: 12px 35px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
+        pointer-events: auto;
+      }
+
+      .modal-button-primary {
+        color: white;
+        background: rgba(255, 255, 255, 0.25);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .modal-button-primary:hover {
+        background: rgba(255, 255, 255, 0.35);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: translateY(-2px);
+      }
+
+      .modal-button-primary:active {
+        transform: translateY(0);
+      }
+
+      .close-button {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 101;
+        pointer-events: auto;
+      }
+
+      .close-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+      }
+
+      /* Hide modal initially */
+      .modal-overlay.hidden {
+        display: none;
+      }
+
+      @media (max-width: 480px) {
+        .modal-dialog {
+          padding: 30px 20px;
+          border-radius: 16px;
+        }
+
+        .modal-title {
+          font-size: 1.5rem;
+        }
+
+        .modal-message {
+          font-size: 0.95rem;
+          line-height: 1.6;
+        }
+
+        .modal-footer {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .modal-button {
+          width: 100%;
+          padding: 12px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body class="gift-page">
+    <div id="p5-container"></div>
+    <div class="stars"></div>
+    
+    <div class="container">
+      <div class="gift-content">
+        <h1 class="birthday-title">🎉 HAPPY BIRTHDAY 🎉</h1>
+        
+        <div class="cake-wrapper">
+          <img id="cake" src="cake.gif" alt="Bánh sinh nhật" class="cake-image">
+        </div>
+        
+        <div class="message-box">
+          <p class="birthday-message">
+            Chúc mừng sinh nhật! 💖<br><br>
+            Chúc bạn của tôi sinh nhật đầy ắp sự yêu thương,<br>
+            tuổi mới thêm nhiều hạnh phúc mới, niềm vui mới.<br><br>
+            Chúc bạn sinh nhật vui vẻ, hạnh phúc<br>
+            và nhận được nhiều quà tặng. ✨<br><br>
+            <span class="highlight">Happy Birthday!</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Dialog -->
+    <div class="modal-overlay" id="greetingModal">
+      <div class="modal-dialog">
+        <button class="close-button" onclick="closeGreetingModal()">✕</button>
+        
+        <div class="modal-header">
+          <h2 class="modal-title">🎂 Chúc Mừng Sinh Nhật! 💖</h2>
+        </div>
+
+        <div class="modal-content">
+          <p class="modal-message">
+            Chúc bạn của tôi sinh nhật đầy ắp sự yêu thương,<br>
+            tuổi mới thêm nhiều hạnh phúc mới, niềm vui mới.<br><br>
+            Chúc bạn sinh nhật vui vẻ, hạnh phúc<br>
+            và nhận được nhiều quà tặng. ✨
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="modal-button modal-button-primary" onclick="closeGreetingModal()">
+            Đóng! 💕
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="made-by">Made with 💜 by @goraria</footer>
+
+    <script src="particle.js"></script>
+    <script src="firework.js"></script>
+    <script src="sketch.js"></script>
+    <script>
+      function closeGreetingModal() {
+        const modal = document.getElementById('greetingModal');
+        modal.style.animation = 'modalSlideOut 0.3s cubic-bezier(0.64, 0, 0.78, 0)';
+        setTimeout(() => {
+          modal.classList.add('hidden');
+        }, 300);
+      }
+
+      // Add keyframe for modal slide out animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes modalSlideOut {
+          from {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Close modal when clicking outside of it
+      document.getElementById('greetingModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+          closeGreetingModal();
+        }
+      });
+
+      // Show greeting modal after a short delay
+      setTimeout(() => {
+        document.getElementById('greetingModal').classList.remove('hidden');
+      }, 300);
+    </script>
+  </body>
+</html>
